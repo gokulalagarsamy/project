@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typing Speed Test Game</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 2rem; background: #f2f2f2; color: #333; }
+    .container { max-width: 700px; margin: auto; background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h1 { text-align: center; margin-bottom: 1rem; }
+    #quote { font-size: 1.2rem; padding: 1rem; border: 1px solid #ccc; border-radius: 5px; background: #fafafa; margin-bottom: 1rem; }
+    #inputArea { width: 100%; padding: 0.8rem; font-size: 1.1rem; margin-top: 0.5rem; }
+    .correct { color: green; }
+    .incorrect { color: red; }
+    #stats { margin-top: 1.5rem; font-size: 1.1rem; text-align: center; }
+    #restartBtn { margin-top: 1rem; padding: 0.6rem 1.2rem; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; }
+    #restartBtn:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Typing Speed Test</h1>
+    <div id="quote"></div>
+    <textarea id="inputArea" rows="5" placeholder="Start typing here..."></textarea>
+    <div id="stats">
+      <p>Time: <span id="time">0</span>s | WPM: <span id="wpm">0</span></p>
+    </div>
+    <div style="text-align:center">
+      <button id="restartBtn">Restart</button>
+    </div>
+  </div>
+
+  <script>
+    const quotes = [
+      "The quick brown fox jumps over the lazy dog.",
+      "Typing is a skill that improves with practice.",
+      "JavaScript enables interactive web pages.",
+      "Consistency is the key to success in coding."
+    ];
+
+    const quoteElement = document.getElementById("quote");
+    const inputArea = document.getElementById("inputArea");
+    const timeElement = document.getElementById("time");
+    const wpmElement = document.getElementById("wpm");
+    const restartBtn = document.getElementById("restartBtn");
+
+    let currentQuote = "";
+    let startTime;
+    let timerInterval;
+
+    function loadNewQuote() {
+      currentQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      quoteElement.innerHTML = "";
+      currentQuote.split("").forEach(char => {
+        const span = document.createElement("span");
+        span.textContent = char;
+        quoteElement.appendChild(span);
+      });
+      inputArea.value = "";
+      timeElement.textContent = "0";
+      wpmElement.textContent = "0";
+      clearInterval(timerInterval);
+      startTime = null;
+    }
+
+    function startTimer() {
+      startTime = new Date();
+      timerInterval = setInterval(() => {
+        const elapsedTime = Math.floor((new Date() - startTime) / 1000);
+        timeElement.textContent = elapsedTime;
+        const wordsTyped = inputArea.value.trim().split(/\s+/).length;
+        const wpm = Math.round((wordsTyped / elapsedTime) * 60) || 0;
+        wpmElement.textContent = wpm;
+      }, 1000);
+    }
+
+    inputArea.addEventListener("input", () => {
+      const input = inputArea.value.split("");
+      const quoteSpans = quoteElement.querySelectorAll("span");
+
+      if (!startTime) startTimer();
+
+      let correct = true;
+      quoteSpans.forEach((charSpan, index) => {
+        const char = input[index];
+
+        if (char == null) {
+          charSpan.classList.remove("correct", "incorrect");
+          correct = false;
+        } else if (char === charSpan.textContent) {
+          charSpan.classList.add("correct");
+          charSpan.classList.remove("incorrect");
+        } else {
+          charSpan.classList.add("incorrect");
+          charSpan.classList.remove("correct");
+          correct = false;
+        }
+      });
+
+      if (correct && input.length === currentQuote.length) {
+        clearInterval(timerInterval);
+      }
+    });
+
+    restartBtn.addEventListener("click", loadNewQuote);
+
+    window.onload = loadNewQuote;
+  </script>
+</body>
+</html>
